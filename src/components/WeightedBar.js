@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
@@ -21,15 +21,11 @@ const WeightedBarSlider = styled.div`
 	width: 20px;
 `;
 
-class WeightedBar extends Component {
-	render() {
-		return (
-			<WeightedBarWrapper>
-				<WeightedBarSlider weight={(this.props.weight)} />
-			</WeightedBarWrapper>
-		);
-	}
-}
+const WeightedBar = props => (
+	<WeightedBarWrapper>
+		<WeightedBarSlider weight={props.weight} />
+	</WeightedBarWrapper>
+);
 
 WeightedBar.propTypes = {
 	weight: PropTypes.number.isRequired,

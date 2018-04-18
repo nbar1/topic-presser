@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
+
 import Header from './components/Header';
+import ArticleList from './components/ArticleList';
 
 const initalProps = {
 	topic: 'My Topic',
@@ -24,7 +26,7 @@ const articles = [
 		title: 'bad article 2',
 	},
 	{
-		weight: 0,
+		weight: 15,
 		title: 'bad article 3',
 	},
 ];
@@ -37,10 +39,7 @@ class App extends Component {
 	 */
 	determineWeight() {
 		let weight = 0;
-
-		articles.forEach(article => {
-			weight += article.weight;
-		});
+		articles.map(article => weight += article.weight);
 
 		return weight / articles.length;
 	}
@@ -56,6 +55,7 @@ class App extends Component {
 		return (
 			<div className="App">
 				<Header {...initalProps} />
+				<ArticleList articles={articles} />
 			</div>
 		);
 	}
