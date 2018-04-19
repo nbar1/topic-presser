@@ -5,13 +5,13 @@ import styled from 'styled-components';
 const WeightedBarWrapper = styled.div`
 	background: linear-gradient(to right, rgba(170, 0, 0, 1) 0%, rgba(43, 219, 90, 1) 100%);
 	height: 25px;
-	margin: 20px auto;
+	margin: 30px auto;
 	position: relative;
 	width: 500px;
 `;
 
 const WeightedBarSlider = styled.div`
-	background: rgba(0, 0, 0, 0.5);
+	background: rgba(0, 0, 0, 0.8);
 	height: 35px;
 	left: ${props => (props.weight)}%;
 	margin-left: -10px;

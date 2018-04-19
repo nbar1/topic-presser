@@ -4,6 +4,10 @@ import styled from 'styled-components';
 
 import WeightedBar from './WeightedBar';
 
+const HeaderWrapper = styled.div`
+	margin-top: 15px;
+`;
+
 const Title = styled.div`
 	font-size: 38px;
 	text-align: center;
@@ -52,11 +56,11 @@ class Header extends Component {
 	 */
 	render() {
 		return (
-			<div>
+			<HeaderWrapper>
 				<Title>{this.props.topic}</Title>
 				<Consensus>{this.weightToText()}</Consensus>
 				<WeightedBar weight={this.props.weight} />
-			</div>
+			</HeaderWrapper>
 		);
 	}
 }

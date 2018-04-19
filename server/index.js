@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const profileInformation = require('./profileInformation');
 const chalk = require('chalk');
 const MongoClient = require('MongoDB').MongoClient;
+const ObjectID = require('mongodb').ObjectID;
 const articleParser = require('article-parser').extract;
 
 /**
@@ -32,7 +33,7 @@ MongoClient.connect(profileInformation.mongoUrl, (error, client) => {
 		return console.log(error);
 	}
 
-	db = client.db('topic-presser');
+	db = client.db(profileInformation.mongoDB);
 });
 
 /**
@@ -41,14 +42,14 @@ MongoClient.connect(profileInformation.mongoUrl, (error, client) => {
 app.get('/articles/:page?', function(request, response) {
 	let page = request.params.page || 1;
 
-	db.collection(profileInformation.mongoCollection).find({}).sort({key: 1}).skip(pageSize * (page - 1)).limit(pageSize).toArray((error, results) => {
+	db.collection(profileInformation.mongoCollection).find({approved: true}, ).sort({ISODateTime: -1}).skip(pageSize * (page - 1)).limit(pageSize).toArray((error, results) => {
 		response.send(results);
 	});
 });
 
 app.post('/article/save', function(request, response) {
 	if (request.body.url === undefined || request.body.weight === undefined) {
-		return response.sendStatus(200);
+		return response.sendStatus(500);
 	}
 
 	articleParser(request.body.url).then(article => {
@@ -57,6 +58,7 @@ app.post('/article/save', function(request, response) {
 			title: article.title,
 			weight: request.body.weight,
 			ISODateTime: new Date().toISOString(),
+			approved: false,
 		}
 
 		if (articleDocument.title === undefined || articleDocument.title === null) {
@@ -73,6 +75,23 @@ app.post('/article/save', function(request, response) {
 
 			response.sendStatus(200);
 		});
+	});
+});
+
+app.post('/article/approve', function(request, response) {
+	if (request.body.id === undefined) {
+		return response.sendStatus(500);
+	}
+
+	db.collection(profileInformation.mongoCollection).update({_id: ObjectID(request.body.id)}, {$set: {approved: true}}, error => {
+		if (error) {
+			return response.sendStatus(500);
+		}
+
+		// eslint-disable-next-line
+		console.log(`${chalk.yellow('Approved Article')} ✔ ${request.body.id}`);
+
+		response.sendStatus(200);
 	});
 });
 

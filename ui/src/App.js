@@ -1,47 +1,49 @@
 import React, { Component } from 'react';
+import axios from 'axios';
 
 import Header from './components/Header';
 import ArticleList from './components/ArticleList';
 
-const initalProps = {
-	topic: 'My Topic',
-	weight: 50,
-};
-
-const articles = [
-	{
-		weight: 100,
-		title: 'good article 1',
-	},
-	{
-		weight: 100,
-		title: 'good article 2',
-	},
-	{
-		weight: 0,
-		title: 'bad article 1',
-	},
-	{
-		weight: 0,
-		title: 'bad article 2',
-	},
-	{
-		weight: 15,
-		title: 'bad article 3',
-	},
-];
+const topic = 'My Topic';
 
 class App extends Component {
+	state = {
+		topic,
+		articles: [],
+		weight: 50,
+	}
+
+	constructor(props) {
+		super(props);
+		this.getArticles();
+	}
+
 	/**
 	 * determineWeight
 	 *
+	 * @param {array} articles
 	 * @returns {number}
 	 */
-	determineWeight() {
+	determineWeight(articles) {
 		let weight = 0;
-		articles.map(article => weight += article.weight);
+		articles.map(article => weight += parseInt(article.weight, 10));
 
-		return weight / articles.length;
+		return (weight / articles.length);
+	}
+
+	/**
+	 * getArticles
+	 *
+	 * @returns {void}
+	 */
+	getArticles() {
+		axios.get('http://localhost:3001/articles')
+			.then(response => {
+				this.setState({
+					articles: response.data,
+					weight: this.determineWeight(response.data),
+				});
+			});
 	}
 
 	/**
@@ -50,12 +52,10 @@ class App extends Component {
 	 * @returns {void}
 	 */
 	render() {
-		initalProps.weight = this.determineWeight();
-
 		return (
 			<div className="App">
-				<Header {...initalProps} />
-				<ArticleList articles={articles} />
+				<Header {...this.state} />
+				<ArticleList articles={this.state.articles} />
 			</div>
 		);
 	}
