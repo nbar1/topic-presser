@@ -2,22 +2,35 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
-const ArticleWrapper = styled.div`
+const ArticleWrapper = styled.a`
+	color: #000;
+	display: block;
 	padding: 10px;
 	position: relative;
+	text-decoration: none;
 
 	&:nth-child(even) {
 		background: #eee;
 	}
 
-	> a {
-		color: #000;
-		text-decoration: none;
+	> div {
+		text-indent: -9999px;
+	}
+
+	&:hover > div {
+		box-sizing: border-box;
+		font-size: 12px;
+		line-height: 12px;
+		padding: 4px 8px;
+		text-indent: 0;
+		width: auto;
 	}
 `;
 
 const ArticleWeight = styled.div`
+	background: rgb(112, 112, 60);
 	border-radius: 10px;
+	color: #fff;
 	height: 20px;
 	position: absolute;
 	right: 9px;
@@ -91,9 +104,9 @@ class Article extends Component {
 	 */
 	render() {
 		return (
-			<ArticleWrapper>
-				<a href={this.props.article.url} target="_blank">{this.props.article.title}</a>
-				<ArticleWeight className={this.weightToText()} title={`Positivity: ${this.props.article.weight}/100`} />
+			<ArticleWrapper href={this.props.article.url} target="_blank">
+				{this.props.article.title}
+				<ArticleWeight className={this.weightToText()}><span>{this.props.article.weight}&nbsp;&#9733;</span></ArticleWeight>
 			</ArticleWrapper>
 		);
 	}
