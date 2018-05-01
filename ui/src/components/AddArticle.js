@@ -166,6 +166,7 @@ class AddArticle extends Component {
 					title: data.title,
 					source: data.source,
 					url: data.url,
+					weight: data.weight,
 					loadingInfo: false,
 				});
 			});

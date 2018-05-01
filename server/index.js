@@ -113,12 +113,20 @@ app.get('/article/info', function(request, response) {
 	let articleUrl = request.query.url;
 
 	articleParser(articleUrl).then(article => {
+		// determine weight based on sentiment
+		let articleSentiment = sentiment(striptags(article.content), 'en');
+		let positiveTerms = articleSentiment.positive.length;
+		let negativeTerms = articleSentiment.negative.length;
+		let totalTerms = positiveTerms + negativeTerms;
+		let articleWeight = Math.round(50 + (positiveTerms * (100 / totalTerms) / 2) - (negativeTerms * (100 / totalTerms) / 2));
+
 		response.setHeader('Content-Type', 'application/json');
 		response.send(JSON.stringify({
-			url: article.url,
-			title: article.title,
-			source: article.source,
-			sentiment: sentiment(striptags(article.content), 'en'),
+			url: article.url ? article.url : request.body.url,
+			title: article.title ? article.title : '',
+			source: article.source ? article.source : '',
+			sentiment: articleSentiment,
+			weight: articleWeight ? articleWeight : 50,
 		}));
 	});
 });
