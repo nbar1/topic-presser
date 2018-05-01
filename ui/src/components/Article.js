@@ -13,6 +13,7 @@ const ArticleWrapper = styled.a`
 		background: #eee;
 	}
 
+	/* move to ArticleWeight */
 	> div {
 		text-indent: -9999px;
 	}

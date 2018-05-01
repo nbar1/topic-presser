@@ -5,6 +5,8 @@ const chalk = require('chalk');
 const MongoClient = require('MongoDB').MongoClient;
 const ObjectID = require('mongodb').ObjectID;
 const articleParser = require('article-parser').extract;
+const sentiment = require('sentiment');
+const striptags = require('striptags');
 
 /**
  * Global Variables
@@ -19,9 +21,11 @@ let pageSize = profileInformation.articlePageSize;
 app.use(function(req, res, next) {
 	res.header('Access-Control-Allow-Origin', '*');
 	res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+
 	next();
 });
 
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 /**
@@ -47,35 +51,45 @@ app.get('/articles/:page?', function(request, response) {
 	});
 });
 
-app.post('/article/save', function(request, response) {
+app.post('/article/add', function(request, response) {
 	if (request.body.url === undefined || request.body.weight === undefined) {
 		return response.sendStatus(500);
 	}
 
-	articleParser(request.body.url).then(article => {
-		let articleDocument = {
-			url: article.url,
-			title: article.title,
-			weight: request.body.weight,
-			ISODateTime: new Date().toISOString(),
-			approved: false,
-		}
+	db.collection(profileInformation.mongoCollection)
+		.find({url: request.body.url})
+		.toArray((error, results) => {
+			if (results.length > 0 === true) {
+				// duplicate
+				response.sendStatus(409);
+				return;
+			};
 
-		if (articleDocument.title === undefined || articleDocument.title === null) {
-			articleDocument.title = article.url;
-		}
+			articleParser(request.body.url).then(article => {
+				let articleDocument = {
+					url: article.url,
+					title: article.title,
+					weight: request.body.weight,
+					ISODateTime: new Date().toISOString(),
+					approved: false,
+				}
 
-		db.collection(profileInformation.mongoCollection).save(articleDocument, error => {
-			if (error) {
-				throw error;
-			}
+				if (articleDocument.title === undefined || articleDocument.title === null) {
+					articleDocument.title = article.url;
+				}
 
-			// eslint-disable-next-line
-			console.log(`${chalk.green('Saved Article')} ✔ ${articleDocument.weight} / ${articleDocument.url} / ${articleDocument.title}`);
+				db.collection(profileInformation.mongoCollection).save(articleDocument, error => {
+					if (error) {
+						throw error;
+					}
 
-			response.sendStatus(200);
+					// eslint-disable-next-line
+					console.log(`${chalk.green('Saved Article')} ✔ ${articleDocument.weight} / ${articleDocument.url} / ${articleDocument.title}`);
+
+					response.sendStatus(200);
+				});
+			});
 		});
-	});
 });
 
 app.post('/article/approve', function(request, response) {
@@ -101,7 +115,10 @@ app.get('/article/info', function(request, response) {
 	articleParser(articleUrl).then(article => {
 		response.setHeader('Content-Type', 'application/json');
 		response.send(JSON.stringify({
+			url: article.url,
 			title: article.title,
+			source: article.source,
+			sentiment: sentiment(striptags(article.content), 'en'),
 		}));
 	});
 });

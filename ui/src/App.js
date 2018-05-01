@@ -3,6 +3,7 @@ import axios from 'axios';
 
 import Header from './components/Header';
 import ArticleList from './components/ArticleList';
+import AddArticle from './components/AddArticle';
 
 const topic = 'My Topic';
 
@@ -56,6 +57,7 @@ class App extends Component {
 			<div className="App">
 				<Header {...this.state} />
 				<ArticleList articles={this.state.articles} />
+				<AddArticle />
 			</div>
 		);
 	}

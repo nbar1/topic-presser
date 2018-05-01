@@ -7,6 +7,7 @@ import Article from './Article';
 const ArticleListWrapper = styled.div`
 	border: 2px solid #ccc;
 	border-radius: 4px;
+	box-sizing: border-box;
 	margin: 0 auto;
 	width: 700px;
 `;
